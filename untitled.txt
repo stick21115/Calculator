@@ -1,0 +1,100 @@
+pokemon-calc-site/
+├── package.json
+├── public/
+│   └── index.html
+└── src/
+    ├──import React, { useState } from 'react';
+import { Pokemon, Move, calculate, Generations, Field } from '@smogon/calc';
+import '@smogon/calc/data/production.min.js';
+
+const gen = Generations.get(9);
+
+function App() {
+  const [attackerName, setAttackerName] = useState('Landorus-Therian');
+  const [attackerItem, setAttackerItem] = useState('Choice Scarf');
+  const [attackerAbility, setAttackerAbility] = useState('Intimidate');
+  const [attackerNature, setAttackerNature] = useState('Jolly');
+  const [attackerMove, setAttackerMove] = useState('Earthquake');
+
+  const [defenderName, setDefenderName] = useState('Tapu Koko');
+  const [defenderItem, setDefenderItem] = useState('Leftovers');
+  const [defenderAbility, setDefenderAbility] = useState('Electric Surge');
+  const [defenderNature, setDefenderNature] = useState('Timid');
+
+  const [weather, setWeather] = useState('');
+  const [terrain, setTerrain] = useState('');
+  const [damageResult, setDamageResult] = useState(null);
+
+  const runCalculation = () => {
+    const attacker = new Pokemon(gen, attackerName, {
+      item: attackerItem,
+      nature: attackerNature,
+      evs: { atk: 252, spe: 252 },
+      ability: attackerAbility,
+    });
+
+    const defender = new Pokemon(gen, defenderName, {
+      item: defenderItem,
+      nature: defenderNature,
+      evs: { hp: 252, spd: 252 },
+      ability: defenderAbility,
+    });
+
+    const move = new Move(gen, attackerMove);
+
+    const field = new Field({
+      weather: weather || undefined,
+      terrain: terrain || undefined,
+    });
+
+    const result = calculate(gen, attacker, defender, move, field);
+    setDamageResult(result);
+  };
+
+  return (
+    <div className="p-6 space-y-4 text-gray-900">
+      <h1 className="text-2xl font-bold">ポケモンチーム＋ダメージ計算機</h1>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <h2 className="font-semibold">攻撃側</h2>
+          <input placeholder="名前" value={attackerName} onChange={e => setAttackerName(e.target.value)} className="w-full p-1 border" />
+          <input placeholder="持ち物" value={attackerItem} onChange={e => setAttackerItem(e.target.value)} className="w-full p-1 border" />
+          <input placeholder="特性" value={attackerAbility} onChange={e => setAttackerAbility(e.target.value)} className="w-full p-1 border" />
+          <input placeholder="性格" value={attackerNature} onChange={e => setAttackerNature(e.target.value)} className="w-full p-1 border" />
+          <input placeholder="技" value={attackerMove} onChange={e => setAttackerMove(e.target.value)} className="w-full p-1 border" />
+        </div>
+
+        <div className="space-y-2">
+          <h2 className="font-semibold">防御側</h2>
+          <input placeholder="名前" value={defenderName} onChange={e => setDefenderName(e.target.value)} className="w-full p-1 border" />
+          <input placeholder="持ち物" value={defenderItem} onChange={e => setDefenderItem(e.target.value)} className="w-full p-1 border" />
+          <input placeholder="特性" value={defenderAbility} onChange={e => setDefenderAbility(e.target.value)} className="w-full p-1 border" />
+          <input placeholder="性格" value={defenderNature} onChange={e => setDefenderNature(e.target.value)} className="w-full p-1 border" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <h2 className="font-semibold">フィールド情報</h2>
+          <input placeholder="天候 (Rain, Sunなど)" value={weather} onChange={e => setWeather(e.target.value)} className="w-full p-1 border" />
+          <input placeholder="フィールド (Electric, Grassyなど)" value={terrain} onChange={e => setTerrain(e.target.value)} className="w-full p-1 border" />
+        </div>
+      </div>
+
+      <button onClick={runCalculation} className="px-4 py-2 text-white bg-blue-600 rounded">ダメージ計算</button>
+
+      {damageResult && (
+        <div className="mt-4">
+          <h2 className="text-xl font-bold">計算結果</h2>
+          <p>ダメージ: {damageResult.damage.join(' - ')} ({damageResult.range()})%</p>
+          <p>確定数: {damageResult.desc()}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default App;
+
+    └── index.js
